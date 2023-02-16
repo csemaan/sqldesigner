@@ -1,6 +1,6 @@
 ### Version du logiciel modifiée dans mes cours au Collège de Maisonneuve.
 
->Le fichier README original est laissé intact ci-dessus.
+>Le fichier README original est laissé intact ci-dessous.
 
 ---
 ---
