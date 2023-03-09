@@ -77,6 +77,20 @@ body {
     background-image: url(../images/down.gif);
 }
 
+/* 
+    [MODIF/AJOUT 21B]
+    Règle de style de l'élément dans lequel on affiche le nom de la base de données.
+*/
+#dbname {
+    background-color: #036;
+    color: #fff;
+    font-size: 1.2rem;
+    padding: 0.3rem;
+    font-weight: bold;
+    height: auto;
+    margin-bottom: 0.5rem;
+}
+
 #minimap {
     position: fixed;
     width: 100px;

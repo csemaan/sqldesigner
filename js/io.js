@@ -1,8 +1,7 @@
 SQL.IO = function (owner) {
     this.owner = owner;
     this._name = ""; /* last used name with server load/save */
-    this.lastUsedName =
-        ""; /* last used name with local storage or dropbox load/save */
+    this.lastUsedName = ""; /* last used name with local storage or dropbox load/save */
     this.dom = {
         container: OZ.$("io"),
     };
@@ -437,7 +436,28 @@ SQL.IO.prototype.dropboxlist = function () {
 
 /* ------------------------- Dropbox end ------------------------ */
 
+// [DB] Generate SQL
 SQL.IO.prototype.clientsql = function () {
+    /*
+        [MODIF/AJOUT 21B]
+        On ajoute un 'prompt' pour demander le nom de la BD à l'utilisateur
+        avant de produire le code SQL, et on sauvegarde ce nom dans une propriété
+        de l'objet.
+        On affiche aussi ce nom dans l'élément HTML approprié pour affichage dans la page.
+    */
+    this.dbName =  this.lastUsedDBName || prompt('Nom de la BD ? ', this.owner.getOption("lastUsedDBName"));
+    // Si aucun nom n'est spécifié ou sauvegardé précédement, on ne fait rien.
+    if(!this.dbName) {
+        return;
+    }
+    else {
+        // les options sont sauvegardées en cookie
+        this.owner.setOption("lastUsedDBName", this.dbName);
+        // juste au cas où les cookies sont désactivées, on utilise une propriété de l'objet aussi.
+        this.lastUsedDBName = this.dbName;
+        // et on injecte le nom dans la page Web.
+        document.getElementById('dbname').innerHTML = this.dbName;
+    }
     var bp = this.owner.getOption("staticpath");
     var path = bp + "db/" + window.DATATYPES.getAttribute("db") + "/output.xsl";
     var h = this.owner.getXhrHeaders();
@@ -448,7 +468,8 @@ SQL.IO.prototype.clientsql = function () {
 SQL.IO.prototype.finish = function (xslDoc) {
     this.owner.window.hideThrobber();
     var xml = this.owner.toXML();
-    var sql = "";
+    var sql = '';
+    
     try {
         if (window.XSLTProcessor && window.DOMParser) {
             var parser = new DOMParser();

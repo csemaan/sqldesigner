@@ -227,10 +227,20 @@ SQL.Designer.prototype.getOption = function (name) {
             return CONFIG.XHR_PATH || "";
         case "snap":
             return 0;
+        /*
+            [MODIF/AJOUT 21B]
+            Par défaut, on veut cocher l'option 'showsize' pour afficher la taille
+            d'un champ dans le schéma à l'écran.
+        */
         case "showsize":
-            return 0;
+            return true;
+        /*
+            [MODIF/AJOUT 21B]
+            Par défaut, on veut cocher l'option 'showtype' pour afficher le type d'un 
+            champ dans le schéma à l'écran.
+        */
         case "showtype":
-            return 0;
+            return true;
         case "pattern":
             return "%R_%T";
         case "hide":
@@ -323,11 +333,27 @@ SQL.Designer.prototype.findNamedTable = function (name) {
 };
 
 SQL.Designer.prototype.toXML = function () {
+    /* 
+        [MODIF/AJOUT 21B]
+        Au moment de générer le code XML on demande à l'utilisateur le nom de la BD.
+        On sauvegarde ce choix en cookie et dans une propriété de l'objet.
+        On utilise ce nom dans l'affichage de la page HTML.
+    */
+    let dbName = prompt('Nom de la BD ? ', this.getOption("lastUsedDBName") ||  this.getOption('lastUsedName')) || "";
+    this.setOption('lastUsedDBName', dbName);
+    this.lastUsedDBName = dbName;
+    document.getElementById('dbname').innerHTML = dbName;
+
     var xml = '<?xml version="1.0" encoding="utf-8" ?>\n';
     xml +=
         "<!-- SQL XML created by WWW SQL Designer, https://github.com/ondras/wwwsqldesigner/ -->\n";
     xml += "<!-- Active URL: " + location.href + " -->\n";
-    xml += "<sql>\n";
+    /*
+        [MODIF/AJOUT 21B]
+        On ajoute un attribut 'dbname' à l'élément racine du document XML pour stocker
+        le nom de la BD.
+    */
+    xml += `<sql dbname="${this.getOption('lastUsedDBName') || this.getOption('lastUsedName') || ''}">\n`;
 
     /* serialize datatypes */
     if (window.XMLSerializer) {
@@ -347,6 +373,17 @@ SQL.Designer.prototype.toXML = function () {
 };
 
 SQL.Designer.prototype.fromXML = function (node) {
+    /* 
+        [MODIF/AJOUT 21B]
+        Au moment de charger un fichier XML on récupère le nom de la BD dans l'attribut 'dbname' 
+        de l'élément racine du document, et sinon on demande à l'utilisateur de fournir un nom.
+        On sauvegarde ce choix en cookie et dans une propriété de l'objet.
+        On utilise ce nom dans l'affichage de la page HTML.
+    */
+    let dbName = node.getAttribute('dbName') || prompt('Nom de la BD ? ', '');
+    this.setOption('lastUsedDBName', dbName);
+    document.getElementById('dbname').innerHTML = dbName;
+    
     this.clearTables();
     var types = node.getElementsByTagName("datatypes");
     if (types.length) {

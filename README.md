@@ -1,4 +1,14 @@
-### Version du logiciel modifiée dans mes cours au Collège de Maisonneuve.
+## Version du logiciel modifiée dans mes cours au Collège de Maisonneuve.
+
+**Plusieurs modifications et ajouts appliqués, dont :**
+1. Type de valeur `JSON`ajouté
+2. Par défaut, un champ n'a pas de valeur par défaut et ne peut être `NULL`
+3. Les options d'affichage suivantes sont sélectionnées par défaut : `show field type` et `show field size` 
+4. On peut maintenant donner un nom à la BD : ce nom est sauvegardé dans le fichier `XML` et est utilisé pour générer un script `SQL` plus complet
+5. Encodage et interclassement utilisent le code de caractères `utf8mb4` par défaut
+6. Les tables utilisent le format de stockage `INNODB` par défaut
+
+*Le code est commenté avec la marque `[MODIF/AJOUT 21B]` pour faciliter la consultation* :ok_hand: :fire:
 
 >Le fichier README original est laissé intact ci-dessous.
 

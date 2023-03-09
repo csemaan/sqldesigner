@@ -31,6 +31,23 @@
 
 -- SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 -- SET FOREIGN_KEY_CHECKS=0;
+</xsl:text>
+
+<!-- 
+	[MODIF/AJOUT 21B]
+	On utilise l'attribut 'dbname' qui se trouve sur la balise racine 'sql' 
+	pour faire le output du code SQL requis pour crééer et sélectionner la base de données
+	ayant le nom désiré.
+	Remarquez que j'ai entouré le nom de la BD avec le caractère d'accent grave (`) pour
+	éviter tout problème avec un nom contenant des caractères spéciaux. 
+-->
+<xsl:text>
+-- ---
+-- Database `</xsl:text><xsl:value-of select="@dbname" /><xsl:text>`
+-- ---
+
+CREATE DATABASE IF NOT EXISTS `</xsl:text><xsl:value-of select="@dbname" />`<xsl:text> CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci; 
+USE `</xsl:text><xsl:value-of select="@dbname" />`<xsl:text>;
 
 </xsl:text>
 
@@ -131,9 +148,13 @@
     <xsl:if test="comment">
 <xsl-text> COMMENT '</xsl-text>
             <xsl:call-template name="replace-substring">
-                    <xsl:with-param name="value" select="substring(comment, 1, 60)" />
-                    <xsl:with-param name="from" select='"&apos;"' />
-                    <xsl:with-param name="to" select='"&apos;&apos;"' />
+				<!-- 
+					[MODIF/AJOUT 21B]
+					La longueur maximale des commentaires dans MySQL est 1024 caractères.
+				-->
+				<xsl:with-param name="value" select="substring(comment, 1, 1024)" />
+				<xsl:with-param name="from" select='"&apos;"' />
+				<xsl:with-param name="to" select='"&apos;&apos;"' />
             </xsl:call-template>
 <xsl-text>'</xsl-text>
     </xsl:if>
@@ -141,6 +162,24 @@
 
 </xsl-text>
 
+	</xsl:for-each>
+
+<!-- 
+	[MODIF/AJOUT 21B]
+    S'assurer que le format des tables est spécifié AVANT les clés étrangères ! 
+	Aussi, le choix d'encodage des caractères et l'intercalssement est corrigé ici pour travailler avec utf8mb4.
+-->
+
+<xsl:text>
+-- ---
+-- Table Properties
+-- ---
+
+</xsl:text>
+	<xsl:for-each select="table">
+    <xsl:text>ALTER TABLE `</xsl:text><xsl:value-of select="@name" />
+    <xsl:text>` ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+</xsl:text>
 	</xsl:for-each>
 
 <xsl:text>-- ---
@@ -162,56 +201,12 @@
 				<xsl:text>` (`</xsl:text>
 				<xsl:value-of select="@row" />
 				<xsl:text>`);
+
+				
 </xsl:text>
 			</xsl:for-each>
 		</xsl:for-each>
 	</xsl:for-each>
-
-<xsl:text>
--- ---
--- Table Properties
--- ---
-
-</xsl:text>
-	<xsl:for-each select="table">
-    <xsl:text>-- ALTER TABLE `</xsl:text><xsl:value-of select="@name" />
-    <xsl:text>` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-</xsl:text>
-	</xsl:for-each>
-
-
-
-<xsl:text>
--- ---
--- Test Data
--- ---
-
-</xsl:text>
-        <xsl:for-each select="table">
-    <xsl:text>-- INSERT INTO `</xsl:text><xsl:value-of select="@name" />
-    <xsl:text>` (</xsl:text>
-                    <xsl:for-each select="row">
-                            <xsl:text>`</xsl:text>
-                            <xsl:value-of select="@name" />
-                            <xsl:text>`</xsl:text>
-                            <xsl:if test="not (position()=last())">
-    <xsl:text>,</xsl:text>
-                            </xsl:if>
-                    </xsl:for-each>
-    <xsl:text>) VALUES
--- (</xsl:text>
-                    <xsl:for-each select="row">
-                            <xsl:text>''</xsl:text>
-
-                            <xsl:if test="not (position()=last())">
-    <xsl:text>,</xsl:text>
-                            </xsl:if>
-                    </xsl:for-each>
-
-    <xsl:text>);
-</xsl:text>
-        </xsl:for-each>
-
 
 </xsl:template>
 </xsl:stylesheet>

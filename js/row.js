@@ -10,8 +10,12 @@ SQL.Row = function (owner, title, data) {
 
     this.data.type = 0;
     this.data.size = "";
-    this.data.def = null;
-    this.data.nll = true;
+    /*
+        [MODIF/AJOUT 21B]
+        Valeur par défaut 'def' VIDE ('') et case à cocher 'nll' décochée (false) 
+    */
+    this.data.def = '';
+    this.data.nll = false;
     this.data.ai = false;
     this.data.comment = "";
 
